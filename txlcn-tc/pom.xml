@@ -5,11 +5,10 @@
     <parent>
         <groupId>com.codingapi.txlcn</groupId>
         <artifactId>tx-lcn</artifactId>
-        <version>5.0.2.RELEASE</version>
+        <version>5.0.3.RELEASE</version>
     </parent>
 
     <artifactId>txlcn-tc</artifactId>
-    <version>5.0.3.SNAPSHOT</version>
 
     <description>LCN project for Spring Boot</description>
 
@@ -64,4 +63,25 @@
         </dependency>
 
     </dependencies>
+
+    <build>
+        <plugins>
+            <!-- 要将源码放上去，需要加入这个插件 -->
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.0.1</version>
+                <configuration>
+                    <attach>true</attach>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
