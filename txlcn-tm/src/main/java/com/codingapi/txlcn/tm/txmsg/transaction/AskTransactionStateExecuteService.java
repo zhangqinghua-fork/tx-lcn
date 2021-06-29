@@ -43,6 +43,7 @@ public class AskTransactionStateExecuteService implements RpcExecuteService {
 
     @Override
     public Serializable execute(TransactionCmd transactionCmd) {
+        System.err.println("===============================AskTransactionStateExecuteService.execute==========================================: " );
         int state = transactionManager.transactionState(transactionCmd.getGroupId());
         return state == -1 ? 0 : state;
     }

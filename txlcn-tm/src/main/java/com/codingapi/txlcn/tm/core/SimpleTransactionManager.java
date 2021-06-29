@@ -102,6 +102,7 @@ public class SimpleTransactionManager implements TransactionManager {
 
     @Override
     public int transactionState(String groupId) {
+        System.err.println("===============================NettyRpcClient.transactionState==========================================: " );
         int state = exceptionService.transactionState(groupId);
         //存在数据时返回数据状态
         if (state != -1) {
@@ -115,6 +116,12 @@ public class SimpleTransactionManager implements TransactionManager {
         return dtxContextRegistry.transactionState(groupId);
     }
 
+    /**
+     * 通知参与方最新的事务状态
+     * @param dtxContext                事务上下文，可以获取事务参与方
+     * @param transactionState          事务状态 0-失败 1-成功
+     * @throws TransactionException     通知异常
+     */
     private void notifyTransaction(DTXContext dtxContext, int transactionState) throws TransactionException {
         List<TransactionUnit> transactionUnits = dtxContext.transactionUnits();
         log.debug("group[{}]'s transaction units: {}", dtxContext.getGroupId(), transactionUnits);
@@ -127,6 +134,7 @@ public class SimpleTransactionManager implements TransactionManager {
             txLogger.txTrace(dtxContext.getGroupId(), notifyUnitParams.getUnitId(), "notify {}'s unit: {}",
                     transUnit.getModId(), transUnit.getUnitId());
             try {
+                System.err.println("===============================NettyRpcClient.notifyTransaction==========================================: " );
                 List<String> modChannelKeys = rpcClient.remoteKeys(transUnit.getModId());
                 if (modChannelKeys.isEmpty()) {
                     // record exception

@@ -84,6 +84,7 @@ public class SimpleDTXChecking implements DTXChecking, DisposableBean {
         txLogger.taskTrace(groupId, unitId, "start delay checking task");
         ScheduledFuture scheduledFuture = scheduledExecutorService.schedule(() -> {
             try {
+                txLogger.taskTrace(groupId, unitId, "SimpleDTXChecking.startDelayCheckingAsync.001");
                 TxContext txContext = globalContext.txContext(groupId);
                 if (Objects.nonNull(txContext)) {
                     synchronized (txContext.getLock()) {
@@ -91,7 +92,9 @@ public class SimpleDTXChecking implements DTXChecking, DisposableBean {
                         txContext.getLock().wait();
                     }
                 }
+                txLogger.taskTrace(groupId, unitId, "SimpleDTXChecking.startDelayCheckingAsync.002");
                 int state = reliableMessenger.askTransactionState(groupId, unitId);
+                txLogger.taskTrace(groupId, unitId, "SimpleDTXChecking.startDelayCheckingAsync.003");
                 txLogger.taskTrace(groupId, unitId, "ask transaction state {}", state);
                 if (state == -1) {
                     txLogger.error(this.getClass().getSimpleName(), "delay clean transaction error.");

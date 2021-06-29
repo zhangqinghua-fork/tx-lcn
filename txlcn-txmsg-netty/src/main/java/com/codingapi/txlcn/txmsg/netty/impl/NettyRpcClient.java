@@ -93,6 +93,7 @@ public class NettyRpcClient extends RpcClient {
 
     @Override
     public List<String> remoteKeys(String moduleName) {
+        System.err.println("===============================NettyRpcClient.remoteKeys==========================================: " + moduleName);
         return SocketManager.getInstance().remoteKeys(moduleName);
     }
 
@@ -114,7 +115,8 @@ public class NettyRpcClient extends RpcClient {
 
     @Override
     public String getModId(String remoteKey) {
-        String modId =  SocketManager.getInstance().getModuleName(remoteKey);
+        // String modId =  SocketManager.getInstance().getModuleName(remoteKey);
+        String modId =  SocketManager.getInstance().getModuleId(remoteKey);
         System.err.println("===============================NettyRpcClient.getModId==========================================: " + modId);
         return modId;
     }

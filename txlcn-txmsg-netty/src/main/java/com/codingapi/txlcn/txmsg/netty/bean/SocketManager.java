@@ -169,14 +169,15 @@ public class SocketManager {
     /**
      * 获取模块的远程标识keys
      *
-     * @param moduleName 模块名称
-     * @return remoteKeys
+     * @param moduleName 模块名称 easybyte-log
+     * @return remoteKeys [/127.0.0.1:65307,/127.0.0.1:65308]
      */
     public List<String> remoteKeys(String moduleName) {
         List<String> allKeys = new ArrayList<>();
         for (Channel channel : channels) {
             // if (moduleName.equals(getModuleName(channel))) {
             if (moduleName.equals(getModuleId(channel))) {
+                // e.g /127.0.0.1:65307
                 allKeys.add(channel.remoteAddress().toString());
             }
         }
@@ -187,9 +188,9 @@ public class SocketManager {
     /**
      * 绑定连接数据
      *
-     * @param remoteKey  远程标识
-     * @param appName  模块名称
-     * @param labelName TC标识名称
+     * @param remoteKey     远程标识
+     * @param appName       模块名称
+     * @param labelName     TC标识名称
      */
     public void bindModuleName(String remoteKey, String appName,String labelName) throws RpcException{
         AppInfo appInfo = new AppInfo();
@@ -250,8 +251,8 @@ public class SocketManager {
     /**
      * 获取模块的唯一ID
      *
-     * @param remoteKey 远程唯一标识
-     * @return 模块名称
+     * @param remoteKey 远程唯一标识    e.g /127.0.0.1:65307
+     * @return 模块名称                 e.g http://192.168.42.2:8089
      */
     public String getModuleId(String remoteKey) {
         AppInfo appInfo = appNames.get(remoteKey);
