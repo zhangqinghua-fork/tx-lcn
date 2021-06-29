@@ -46,7 +46,7 @@ public class TxManagerConfig {
     /**
      * manager host
      */
-    private String host = "127.0.0.1";
+    private String host;
 
     /**
      * support  port
