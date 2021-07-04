@@ -29,10 +29,15 @@ import java.util.concurrent.Executor;
 @Slf4j
 public class LcnConnectionProxy implements Connection {
 
+    // 是否本地事务。如果是本地事务，就直接提交。不是就等到notify了再处理。
+    private Boolean isLocalTransation;
+
     private Connection connection;
 
-    public LcnConnectionProxy(Connection connection) {
+
+    public LcnConnectionProxy(Connection connection, Boolean isLocalTransation) {
         this.connection = connection;
+        this.isLocalTransation = isLocalTransation;
     }
 
     /**
@@ -66,16 +71,25 @@ public class LcnConnectionProxy implements Connection {
 
     @Override
     public void commit() throws SQLException {
+        if (isLocalTransation) {
+            notify(1);
+        }
         //connection.commit();
     }
 
     @Override
     public void rollback() throws SQLException {
+        if (isLocalTransation) {
+            notify(0);
+        }
         //connection.rollback();
     }
 
     @Override
     public void close() throws SQLException {
+        if (isLocalTransation) {
+            connection.close();
+        }
         //connection.close();
     }
 

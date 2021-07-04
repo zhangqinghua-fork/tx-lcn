@@ -20,6 +20,7 @@ import com.codingapi.txlcn.tc.support.TxLcnBeanHelper;
 import com.codingapi.txlcn.tc.support.resouce.TransactionResourceProxy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.sql.Connection;
 import java.util.Objects;
@@ -43,13 +44,23 @@ public class DTXResourceWeaver {
 
     public Object getConnection(ConnectionCallback connectionCallback) throws Throwable {
         DTXLocalContext dtxLocalContext = DTXLocalContext.cur();
-        if (Objects.nonNull(dtxLocalContext) && dtxLocalContext.isProxy()) {
-            String transactionType = dtxLocalContext.getTransactionType();
+
+        // 1. 如果加上@LcnTransation注解，则获取代理的conn（代理的conn需要等待回调的时候才提交）
+        // if (Objects.nonNull(dtxLocalContext) && dtxLocalContext.isProxy()) {
+        if (false) {
+            String transactionType =null;
+            if (dtxLocalContext != null) {
+                transactionType  = dtxLocalContext.getTransactionType();
+            }
+            transactionType = StringUtils.isEmpty(transactionType) ? "lcn": transactionType;
             TransactionResourceProxy resourceProxy = txLcnBeanHelper.loadTransactionResourceProxy(transactionType);
+
             Connection connection = resourceProxy.proxyConnection(connectionCallback);
             log.debug("proxy a sql connection: {}.", connection);
             return connection;
         }
+
+        // 2. 如果没有@LcnTransation注解，则获取默认的conn
         return connectionCallback.call();
     }
 }

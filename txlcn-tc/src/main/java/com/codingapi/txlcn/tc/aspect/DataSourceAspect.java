@@ -46,6 +46,7 @@ public class DataSourceAspect implements Ordered {
 
     @Around("execution(* javax.sql.DataSource.getConnection(..))")
     public Object around(ProceedingJoinPoint point) throws Throwable {
+        log.trace("拦截数据源，导入自己的数据源 来自 DataSourceTransactionManager.doBegin:obtainDataSource().getConnection()");
         return dtxResourceWeaver.getConnection(() -> (Connection) point.proceed());
     }
 

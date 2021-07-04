@@ -39,6 +39,8 @@ import java.util.stream.Collectors;
  * Description:
  * Date: 19-1-22 下午6:17
  *
+ * 永久性存储的，直到应用关闭
+ *
  * @author ujued
  * @see AttachmentCache
  * @see PrimaryKeysProvider
@@ -66,8 +68,16 @@ public class DefaultGlobalContext implements TCGlobalContext {
         attachmentCache.attach(groupId, LcnConnectionProxy.class.getName(), connectionProxy);
     }
 
+    /**
+     * 获取LCN的代理连接
+     * 1. 如果groupId相同则表示是同一个事务，返回同一个连接。
+     * 2. 参考：远程调用 a -> b -> a。这时候2个a不处于同一个线程，但是属于同一个groupId，需要获取前一个a未提交的数据
+     * @param groupId 代理连接的分组Id。e.g 11c0f542eeb5537
+     * @throws TCGlobalContextException 如果抛出异常了，表示本地还没有创建代理连接，在前面一个方法创建。
+     */
     @Override
     public LcnConnectionProxy getLcnConnection(String groupId) throws TCGlobalContextException {
+        // 1. 如果本地有缓存次
         if (attachmentCache.containsKey(groupId, LcnConnectionProxy.class.getName())) {
             return attachmentCache.attachment(groupId, LcnConnectionProxy.class.getName());
         }

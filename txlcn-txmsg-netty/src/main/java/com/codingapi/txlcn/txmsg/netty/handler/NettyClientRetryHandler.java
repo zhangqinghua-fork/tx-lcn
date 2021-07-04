@@ -15,12 +15,13 @@
  */
 package com.codingapi.txlcn.txmsg.netty.handler;
 
-import com.codingapi.txlcn.txmsg.MessageConstants;
 import com.codingapi.txlcn.common.util.id.RandomUtils;
-import com.codingapi.txlcn.txmsg.listener.ClientInitCallBack;
+import com.codingapi.txlcn.txmsg.MessageConstants;
+import com.codingapi.txlcn.txmsg.RpcConfig;
 import com.codingapi.txlcn.txmsg.dto.MessageDto;
-import com.codingapi.txlcn.txmsg.netty.bean.SocketManager;
+import com.codingapi.txlcn.txmsg.listener.ClientInitCallBack;
 import com.codingapi.txlcn.txmsg.netty.bean.NettyRpcCmd;
+import com.codingapi.txlcn.txmsg.netty.bean.SocketManager;
 import com.codingapi.txlcn.txmsg.netty.impl.NettyContext;
 import com.codingapi.txlcn.txmsg.netty.impl.NettyRpcClientInitializer;
 import io.netty.channel.ChannelHandler;
@@ -51,6 +52,23 @@ public class NettyClientRetryHandler extends ChannelInboundHandlerAdapter {
 
     private NettyRpcCmd heartCmd;
 
+    /**
+     * 注册事件
+     */
+    @Override
+    public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+        log.info("注册事件");
+    }
+
+    /**
+     * 取消注册事件
+     */
+    @Override
+    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
+        log.info("取消注册事件");
+    }
+
+
     @Autowired
     public NettyClientRetryHandler(ClientInitCallBack clientInitCallBack) {
         MessageDto messageDto = new MessageDto();
@@ -61,24 +79,39 @@ public class NettyClientRetryHandler extends ChannelInboundHandlerAdapter {
         this.clientInitCallBack = clientInitCallBack;
     }
 
+    /**
+     * 有新客户端连接接入
+     */
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        log.info("有新客户端连接接入");
+
         super.channelActive(ctx);
         keepSize = NettyContext.currentParam(List.class).size();
 
         clientInitCallBack.connected(ctx.channel().remoteAddress().toString());
     }
 
+    @Autowired
+    private RpcConfig rpcConfig;
+
+    /**
+     * 失去连接
+     */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        log.warn("失去连接");
+
         super.channelInactive(ctx);
         log.error("keepSize:{},nowSize:{}", keepSize, SocketManager.getInstance().currentSize());
 
         SocketAddress socketAddress = ctx.channel().remoteAddress();
         log.error("socketAddress:{} ", socketAddress);
+
+        log.warn("尝试重新连接， {}ms latter try again.", rpcConfig.getReconnectDelay());
+        Thread.sleep(rpcConfig.getReconnectDelay());
         NettyRpcClientInitializer.reConnect(socketAddress);
     }
-
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {

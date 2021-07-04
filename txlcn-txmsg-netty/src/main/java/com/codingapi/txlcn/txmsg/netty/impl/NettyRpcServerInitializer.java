@@ -76,8 +76,10 @@ public class NettyRpcServerInitializer implements RpcServerInitializer, Disposab
 
             // Start the server.
             if (StringUtils.hasText(managerProperties.getRpcHost())) {
+                log.info("绑定IP的Netty");
                 b.bind(managerProperties.getRpcHost(), managerProperties.getRpcPort());
             } else {
+                log.info("不绑定IP的Netty");
                 b.bind(port);
             }
             log.info("Socket started on {}:{} ",

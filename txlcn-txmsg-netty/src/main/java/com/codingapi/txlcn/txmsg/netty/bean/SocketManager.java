@@ -119,6 +119,7 @@ public class SocketManager {
     }
 
     public MessageDto request(String key, RpcCmd cmd, long timeout) throws RpcException {
+        System.out.println("=======================SocketManager.request===================================" + System.currentTimeMillis());
         NettyRpcCmd nettyRpcCmd = (NettyRpcCmd) cmd;
         log.debug("get channel, key:{}", key);
         Channel channel = getChannel(key);
@@ -192,22 +193,22 @@ public class SocketManager {
      * @param appName       模块名称
      * @param labelName     TC标识名称
      */
-    public void bindModuleName(String remoteKey, String appName,String labelName) throws RpcException{
+    public void bindModuleName(String remoteKey, String appName, String labelName) throws RpcException {
         AppInfo appInfo = new AppInfo();
         appInfo.setAppName(appName);
         appInfo.setLabelName(labelName);
         appInfo.setCreateTime(new Date());
-        if(containsLabelName(labelName)){
-            throw new RpcException("labelName:"+labelName+" has exist.");
+        if (containsLabelName(labelName)) {
+            throw new RpcException("labelName:" + labelName + " has exist.");
         }
         appNames.put(remoteKey, appInfo);
     }
 
-    public boolean containsLabelName(String moduleName){
-        Set<String> keys =  appNames.keySet();
-        for(String key:keys){
+    public boolean containsLabelName(String moduleName) {
+        Set<String> keys = appNames.keySet();
+        for (String key : keys) {
             AppInfo appInfo = appNames.get(key);
-            if(moduleName.equals(appInfo.getAppName())){
+            if (moduleName.equals(appInfo.getAppName())) {
                 return true;
             }
         }
@@ -248,6 +249,7 @@ public class SocketManager {
         return getModuleId(key);
 
     }
+
     /**
      * 获取模块的唯一ID
      *

@@ -84,8 +84,8 @@ public class RedisStorage implements FastStorage {
     public List<TransactionUnit> findTransactionUnitsFromGroup(String groupId) throws FastStorageException {
         Map<Object, Object> units = redisTemplate.opsForHash().entries(REDIS_GROUP_PREFIX + groupId);
         return units.entrySet().stream()
-                .filter(objectObjectEntry -> !objectObjectEntry.getKey().equals("root"))
-                .map(objectObjectEntry -> (TransactionUnit) objectObjectEntry.getValue()).collect(Collectors.toList());
+                    .filter(objectObjectEntry -> !objectObjectEntry.getKey().equals("root"))
+                    .map(objectObjectEntry -> (TransactionUnit) objectObjectEntry.getValue()).collect(Collectors.toList());
     }
 
     @Override
@@ -95,7 +95,7 @@ public class RedisStorage implements FastStorage {
             return;
         }
         throw new FastStorageException("attempts to the non-existent transaction group " + groupId,
-                FastStorageException.EX_CODE_NON_GROUP);
+                                       FastStorageException.EX_CODE_NON_GROUP);
     }
 
     @Override
@@ -175,8 +175,8 @@ public class RedisStorage implements FastStorage {
             return Collections.emptyList();
         }
         return Objects.requireNonNull(redisTemplate.opsForList().range(REDIS_TOKEN_PREFIX, 0, size))
-                .stream()
-                .map(Object::toString).collect(Collectors.toList());
+                      .stream()
+                      .map(Object::toString).collect(Collectors.toList());
     }
 
     @Override
@@ -188,20 +188,20 @@ public class RedisStorage implements FastStorage {
     public void saveTMProperties(TMProperties tmProperties) {
         Objects.requireNonNull(tmProperties);
         stringRedisTemplate.opsForHash().put(REDIS_TM_LIST,
-                tmProperties.getHost() + ":" + tmProperties.getTransactionPort(), String.valueOf(tmProperties.getHttpPort()));
+                                             tmProperties.getHost() + ":" + tmProperties.getTransactionPort(), String.valueOf(tmProperties.getHttpPort()));
     }
 
     @Override
     public List<TMProperties> findTMProperties() {
         return stringRedisTemplate.opsForHash().entries(REDIS_TM_LIST).entrySet().stream()
-                .map(entry -> {
-                    String[] args = ApplicationInformation.splitAddress(entry.getKey().toString());
-                    TMProperties tmProperties = new TMProperties();
-                    tmProperties.setHost(args[0]);
-                    tmProperties.setTransactionPort(Integer.valueOf(args[1]));
-                    tmProperties.setHttpPort(Integer.parseInt(entry.getValue().toString()));
-                    return tmProperties;
-                }).collect(Collectors.toList());
+                                  .map(entry -> {
+                                      String[] args = ApplicationInformation.splitAddress(entry.getKey().toString());
+                                      TMProperties tmProperties = new TMProperties();
+                                      tmProperties.setHost(args[0]);
+                                      tmProperties.setTransactionPort(Integer.valueOf(args[1]));
+                                      tmProperties.setHttpPort(Integer.parseInt(entry.getValue().toString()));
+                                      return tmProperties;
+                                  }).collect(Collectors.toList());
     }
 
     @Override
@@ -215,6 +215,7 @@ public class RedisStorage implements FastStorage {
     private static final String GLOBAL_LOCK_ID = "global.lock";
 
     private void acquireGlobalXLock() {
+        log.trace("申请全局锁");
         LockValue lockValue = new LockValue();
         lockValue.setLockType(DTXLocks.X_LOCK);
         while (true) {
@@ -222,8 +223,10 @@ public class RedisStorage implements FastStorage {
                 acquireLocks(GLOBAL_CONTEXT, Sets.newHashSet(GLOBAL_LOCK_ID), lockValue);
                 break;
             } catch (FastStorageException ignored) {
+                log.trace("申请全局锁失败");
             }
         }
+        log.trace("申请全局锁成功");
     }
 
     private void releaseGlobalXLock() {

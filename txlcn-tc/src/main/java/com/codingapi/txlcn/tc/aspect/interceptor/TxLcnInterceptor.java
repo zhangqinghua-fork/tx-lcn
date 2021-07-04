@@ -43,6 +43,7 @@ public class TxLcnInterceptor implements MethodInterceptor {
 
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
+        System.out.println("------------------------TxLcnInterceptor.invoke---------------------------------------");
         return dtxLogicWeaver.runTransaction(InterceptorInvocationUtils.load(invocation,transactionAttributes), invocation::proceed);
     }
 }
