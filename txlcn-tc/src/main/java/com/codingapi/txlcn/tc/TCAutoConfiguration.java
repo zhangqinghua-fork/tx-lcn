@@ -38,9 +38,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
  */
 @Configuration
 @ComponentScan(
-        excludeFilters = @ComponentScan.Filter(
-                type = FilterType.ASPECTJ, pattern = "com.codingapi.txlcn.tc.core.transaction.txc..*"
-        )
+
 )
 @Import({TxLoggerConfiguration.class, TracingAutoConfiguration.class})
 public class TCAutoConfiguration {
