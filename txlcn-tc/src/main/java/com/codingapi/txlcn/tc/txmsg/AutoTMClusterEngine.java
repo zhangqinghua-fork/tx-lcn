@@ -54,9 +54,11 @@ public class AutoTMClusterEngine implements RpcEnvStatusListener {
 
     @Override
     public void onInitialized(String remoteKey) {
-        if (prepareToResearchTMCluster()) {
-            TMSearcher.echoTmClusterSize();
-        }
+        // if (prepareToResearchTMCluster()) {
+        //     TMSearcher.echoTmClusterSize();
+        // }
+
+        TMSearcher.echoTmClusterSize();
     }
 
     @Override

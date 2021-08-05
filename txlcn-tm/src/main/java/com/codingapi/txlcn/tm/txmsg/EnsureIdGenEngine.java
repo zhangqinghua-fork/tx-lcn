@@ -13,6 +13,8 @@ import com.codingapi.txlcn.txmsg.listener.RpcConnectionListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.security.InvalidParameterException;
+
 /**
  * Description:
  * Date: 19-1-31 上午11:18
@@ -58,6 +60,8 @@ public class EnsureIdGenEngine implements RpcConnectionListener, HeartbeatListen
     public void onTmReceivedHeart(RpcCmd cmd) {
         try {
             Long machineId = cmd.getMsg().loadBean(Long.class);
+            // TC machineId is null
+            if (machineId == null) throw new InvalidParameterException("TC's machineId is null");
             managerService.refreshMachines(machineId, managerConfig.getMachineId());
         } catch (Exception e) {
             e.printStackTrace();
