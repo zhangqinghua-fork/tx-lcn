@@ -33,3 +33,7 @@
 Website: [https://www.txlcn.org](https://www.txlcn.org/en-us/)  
 Statistics: [Leave your company messages](https://github.com/codingapi/tx-lcn/issues/7)  
 QQ：554855843 (Hot) 970071379(Hot) 863954560(Normal)
+
+#### 1. 使用Docker，重启TM后会TC注册上2个TM。
+
+#### 2. TM重启后，TC无法发起重新连接。

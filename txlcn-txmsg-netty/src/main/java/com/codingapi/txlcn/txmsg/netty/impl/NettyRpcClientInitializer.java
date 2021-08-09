@@ -82,7 +82,9 @@ public class NettyRpcClientInitializer implements RpcClientInitializer, Disposab
         NettyContext.params = hosts;
         workerGroup = new NioEventLoopGroup();
         for (TxManagerHost host : hosts) {
+            System.out.println("connect start..................................");
             Optional<Future> future = connect(new InetSocketAddress(host.getHost(), host.getPort()));
+            System.out.println("connect finished..................................");
             if (sync && future.isPresent()) {
                 try {
                     future.get().get(10, TimeUnit.SECONDS);
