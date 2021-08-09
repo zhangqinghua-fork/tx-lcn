@@ -37,3 +37,5 @@ QQ：554855843 (Hot) 970071379(Hot) 863954560(Normal)
 #### 1. 使用Docker，重启TM后会TC注册上2个TM。
 
 #### 2. TM重启后，TC无法发起重新连接。
+
+#### 3. Github maven 仓库如何做到Snishop快照？
