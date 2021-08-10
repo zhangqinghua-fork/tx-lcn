@@ -6,7 +6,7 @@
 
     <groupId>com.codingapi.txlcn</groupId>
     <artifactId>tx-lcn</artifactId>
-    <version>5.0.3.RELEASE</version>
+    <version>5.0.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
 
@@ -43,7 +43,7 @@
         <maven.javadoc.plugin>2.10.3</maven.javadoc.plugin>
         <maven.gpg.plugin>1.6</maven.gpg.plugin>
 
-        <codingapi.txlcn.version>5.0.3.RELEASE</codingapi.txlcn.version>
+        <codingapi.txlcn.version>5.0.3-SNAPSHOT</codingapi.txlcn.version>
 
         <txlcn-org.projectlombok.version>1.18.0</txlcn-org.projectlombok.version>
         <txlcn-spring-cloud.version>Finchley.SR2</txlcn-spring-cloud.version>
@@ -269,32 +269,23 @@
         </dependencies>
     </dependencyManagement>
 
-
-    <!--发布到GitHub远程仓库-->
+    <!--发布到私有仓库中-->
     <distributionManagement>
         <repository>
-            <id>maven.repo</id>
-            <name>Local Staging Repository</name>
-            <url>file://${project.build.directory}/mvn-repo</url>
+            <id>rdc-releases</id>
+            <url>https://repo.rdc.aliyun.com/repository/136962-release-066qRy/</url>
         </repository>
+        <snapshotRepository>
+            <id>rdc-snapshots</id>
+            <url>https://repo.rdc.aliyun.com/repository/136962-snapshot-nAJQiw/</url>
+        </snapshotRepository>
     </distributionManagement>
 
-    <!--发布到GitHub远程仓库-->
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.18.1</version>
-                <configuration>
-                    <skipTests>true</skipTests>
-                </configuration>
-            </plugin>
-
             <!-- 要将源码放上去，需要加入这个插件 -->
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.0.1</version>
                 <configuration>
                     <attach>true</attach>
                 </configuration>
@@ -303,49 +294,6 @@
                         <phase>compile</phase>
                         <goals>
                             <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.8.2</version>
-                <configuration>
-                    <altDeploymentRepository>maven.repo::default::file://${project.build.directory}/mvn-repo
-                    </altDeploymentRepository>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>com.github.github</groupId>
-                <artifactId>site-maven-plugin</artifactId>
-                <version>0.12</version>
-                <configuration>
-                    <!-- git commit message -->
-                    <message>Maven artifacts for ${project.version}</message>
-                    <!-- disable webpage processing -->
-                    <noJekyll>false</noJekyll>
-                    <!-- matches distribution management repository url above -->
-                    <outputDirectory>${project.build.directory}/mvn-repo</outputDirectory>
-                    <!-- remote branch name -->
-                    <branch>refs/heads/master</branch>
-                    <includes>
-                        <include>**/*</include>
-                    </includes>
-                    <merge>true</merge>
-                    <!--Maven setttings 文件中定义的 server.id-->
-                    <server>github</server>
-                    <!-- 对应github上创建的仓库名 -->
-                    <repositoryName>maven-repo</repositoryName>
-                    <!-- github仓库所有者setting中的name或者组织名 -->
-                    <repositoryOwner>zhangqinghua-maven-repo</repositoryOwner>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>deploy</phase>
-                        <goals>
-                            <goal>site</goal>
                         </goals>
                     </execution>
                 </executions>

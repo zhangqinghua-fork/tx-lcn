@@ -46,13 +46,9 @@ public class DTXResourceWeaver {
         DTXLocalContext dtxLocalContext = DTXLocalContext.cur();
 
         // 1. 如果加上@LcnTransation注解，则获取代理的conn（代理的conn需要等待回调的时候才提交）
-        // if (Objects.nonNull(dtxLocalContext) && dtxLocalContext.isProxy()) {
-        if (false) {
-            String transactionType =null;
-            if (dtxLocalContext != null) {
-                transactionType  = dtxLocalContext.getTransactionType();
-            }
-            transactionType = StringUtils.isEmpty(transactionType) ? "lcn": transactionType;
+        if (Objects.nonNull(dtxLocalContext) && dtxLocalContext.isProxy()) {
+            String transactionType = dtxLocalContext.getTransactionType();
+            transactionType = StringUtils.isEmpty(transactionType) ? "lcn" : transactionType;
             TransactionResourceProxy resourceProxy = txLcnBeanHelper.loadTransactionResourceProxy(transactionType);
 
             Connection connection = resourceProxy.proxyConnection(connectionCallback);
