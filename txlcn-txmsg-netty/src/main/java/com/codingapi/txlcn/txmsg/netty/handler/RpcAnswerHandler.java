@@ -41,6 +41,7 @@ public class RpcAnswerHandler extends SimpleChannelInboundHandler<RpcCmd> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RpcCmd cmd) {
+        // 1. 读取TC的IP地址：/10.100.32.124:53257
         String remoteKey = ctx.channel().remoteAddress().toString();
         cmd.setRemoteKey(remoteKey);
         rpcClientAnswer.callback(cmd);

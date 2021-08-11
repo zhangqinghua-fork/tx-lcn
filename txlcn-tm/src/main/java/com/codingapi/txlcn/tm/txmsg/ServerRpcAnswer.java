@@ -54,29 +54,30 @@ public class ServerRpcAnswer implements RpcAnswer, DisposableBean {
                 Math.max(Runtime.getRuntime().availableProcessors() * 5, managerConfig.getConcurrentLevel()));
         this.rpcClient = rpcClient;
         this.executorService = Executors.newFixedThreadPool(managerConfig.getConcurrentLevel(),
-                new ThreadFactoryBuilder().setDaemon(false).setNameFormat("tm-rpc-service-%d").build());
+                                                            new ThreadFactoryBuilder().setDaemon(false).setNameFormat("tm-rpc-service-%d").build());
         this.rpcBeanHelper = rpcBeanHelper;
     }
 
 
     @Override
     public void callback(RpcCmd rpcCmd) {
-        log.info("=================================ServerRpcAnswer.callback===================================\nrpcCmd: " + rpcCmd.toString());
         executorService.submit(() -> {
             try {
+                // 1. 解析分布式事务              ：{"key":"128d82e0a031536","msg":{"action":"createGroup","groupId":"128d82e0a031537","state":100},"remoteKey":"/10.100.32.124:53257"}
                 TransactionCmd transactionCmd = parser(rpcCmd);
+                // 2. 得到事务动作                ：createGroup
                 String action = transactionCmd.getMsg().getAction();
+                // 3. 根据动作选取相应的服务来处理：CreateGroupExecuteService
                 RpcExecuteService rpcExecuteService = rpcBeanHelper.loadManagerService(transactionCmd.getType());
+                // 4. 处理结果                    ：MessageDto(action=createGroup, groupId=null, data=null, state=200)
                 MessageDto messageDto = null;
                 try {
                     Serializable message = rpcExecuteService.execute(transactionCmd);
-                    log.info("=================================ServerRpcAnswer.callback.message===================================: " +  message);
                     messageDto = MessageCreator.okResponse(message, action);
                 } catch (Throwable e) {
-                    log.error("rpc execute service error. action: " + action, e);
                     messageDto = MessageCreator.failResponse(e, action);
                 } finally {
-                    // 对需要响应信息的请求做出响应
+                    // 5. 对需要响应信息的请求做出响应
                     if (rpcCmd.getKey() != null) {
                         assert Objects.nonNull(messageDto);
                         try {

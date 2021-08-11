@@ -15,10 +15,10 @@
  */
 package com.codingapi.txlcn.txmsg.netty.handler;
 
+import com.codingapi.txlcn.txmsg.MessageConstants;
 import com.codingapi.txlcn.txmsg.listener.HeartbeatListener;
 import com.codingapi.txlcn.txmsg.netty.bean.NettyRpcCmd;
 import com.codingapi.txlcn.txmsg.netty.bean.RpcContent;
-import com.codingapi.txlcn.txmsg.MessageConstants;
 import com.codingapi.txlcn.txmsg.netty.em.NettyType;
 import com.codingapi.txlcn.txmsg.netty.impl.NettyContext;
 import io.netty.channel.ChannelHandler;
@@ -46,11 +46,11 @@ public class RpcCmdDecoder extends SimpleChannelInboundHandler<NettyRpcCmd> {
     private HeartbeatListener heartbeatListener;
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, NettyRpcCmd cmd) {
-        String key = cmd.getKey();
-        log.debug("cmd->{}", cmd);
+    protected void channelRead0(ChannelHandlerContext ctx, NettyRpcCmd cmd) throws InterruptedException {
+        log.debug("receive->{}", cmd);
+        Thread.sleep(100);
 
-        //心态数据包直接响应
+        // 1. 心跳业务处理
         if (cmd.getMsg() != null && MessageConstants.ACTION_HEART_CHECK.equals(cmd.getMsg().getAction())) {
             if (NettyContext.currentType().equals(NettyType.client)) {
                 //设置值
@@ -63,8 +63,8 @@ public class RpcCmdDecoder extends SimpleChannelInboundHandler<NettyRpcCmd> {
             }
         }
 
-        //需要响应的数据包
-        if (!StringUtils.isEmpty(key)) {
+        // 2. 事务业务处理
+        if (!StringUtils.isEmpty(cmd.getKey())) {
             RpcContent rpcContent = cmd.loadRpcContent();
             if (rpcContent != null) {
                 log.debug("got response message[Netty Handler]");
@@ -76,5 +76,7 @@ public class RpcCmdDecoder extends SimpleChannelInboundHandler<NettyRpcCmd> {
         } else {
             ctx.fireChannelRead(cmd);
         }
+
+        System.out.println("================channelRead0 finish==================");
     }
 }
