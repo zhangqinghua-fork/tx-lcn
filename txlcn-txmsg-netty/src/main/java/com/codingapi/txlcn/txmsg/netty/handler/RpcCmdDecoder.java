@@ -48,7 +48,6 @@ public class RpcCmdDecoder extends SimpleChannelInboundHandler<NettyRpcCmd> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, NettyRpcCmd cmd) throws InterruptedException {
         log.debug("receive->{}", cmd);
-        Thread.sleep(100);
 
         // 1. 心跳业务处理
         if (cmd.getMsg() != null && MessageConstants.ACTION_HEART_CHECK.equals(cmd.getMsg().getAction())) {

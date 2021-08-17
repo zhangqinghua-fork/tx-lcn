@@ -75,7 +75,7 @@ public class ServerRpcAnswer implements RpcAnswer, DisposableBean {
                     Serializable message = rpcExecuteService.execute(transactionCmd);
                     messageDto = MessageCreator.okResponse(message, action);
                 } catch (Throwable e) {
-                    messageDto = MessageCreator.failResponse(e, action);
+                    messageDto = MessageCreator.failResponse(e.getMessage(), action);
                 } finally {
                     // 5. 对需要响应信息的请求做出响应
                     if (rpcCmd.getKey() != null) {
