@@ -36,6 +36,7 @@ public class TracingHystrixConcurrencyStrategy extends HystrixConcurrencyStrateg
     private HystrixConcurrencyStrategy delegate;
 
     public TracingHystrixConcurrencyStrategy() {
+        System.err.println("=========================TracingHystrixConcurrencyStrategy======================================");
         try {
             this.delegate = HystrixPlugins.getInstance().getConcurrencyStrategy();
             if (this.delegate instanceof TracingHystrixConcurrencyStrategy) {

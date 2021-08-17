@@ -35,14 +35,22 @@ import javax.servlet.http.HttpServletResponse;
 @Component
 public class SpringTracingApplier implements com.codingapi.txlcn.tracing.http.spring.HandlerInterceptor, WebMvcConfigurer {
 
-    @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        Tracings.apply(request::getHeader);
-        return true;
-    }
-
+    /**
+     * 服务启动自动加载
+     */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        System.out.println("=================SpringTracingApplier.addInterceptors========================");
         registry.addInterceptor(this);
+    }
+
+    /**
+     * 每次接口远程调用时触发（不管是外部接口还是内部接口）
+     */
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        System.err.println("=========================SpringTracingApplier======================================");
+        Tracings.apply(request::getHeader);
+        return true;
     }
 }

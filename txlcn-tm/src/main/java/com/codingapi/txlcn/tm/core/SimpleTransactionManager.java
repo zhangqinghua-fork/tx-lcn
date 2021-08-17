@@ -148,6 +148,7 @@ public class SimpleTransactionManager implements TransactionManager {
                     rpcExceptionHandler.handleNotifyUnitBusinessException(params, respMsg.loadBean(Throwable.class));
                 }
             } catch (RpcException e) {
+                e.printStackTrace();
                 // 提交/回滚通讯失败
                 List<Object> params = Arrays.asList(notifyUnitParams, transUnit.getModId());
                 rpcExceptionHandler.handleNotifyUnitMessageException(params, e);

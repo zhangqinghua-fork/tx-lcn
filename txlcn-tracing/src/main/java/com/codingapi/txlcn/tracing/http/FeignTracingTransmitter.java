@@ -36,6 +36,7 @@ public class FeignTracingTransmitter implements RequestInterceptor {
 
     @Override
     public void apply(RequestTemplate requestTemplate) {
+        System.err.println("=========================FeignTracingTransmitter======================================");
         Tracings.transmit(requestTemplate::header);
     }
 }

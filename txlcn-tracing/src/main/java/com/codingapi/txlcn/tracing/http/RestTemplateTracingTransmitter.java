@@ -44,6 +44,7 @@ public class RestTemplateTracingTransmitter implements ClientHttpRequestIntercep
 
     @Autowired
     public RestTemplateTracingTransmitter(@Autowired(required = false) List<RestTemplate> restTemplates) {
+        System.err.println("=========================RestTemplateTracingTransmitter======================================");
         if (Objects.nonNull(restTemplates)) {
             restTemplates.forEach(restTemplate -> {
                 List<ClientHttpRequestInterceptor> interceptors = restTemplate.getInterceptors();
