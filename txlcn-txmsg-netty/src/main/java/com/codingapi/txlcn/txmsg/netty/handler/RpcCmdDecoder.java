@@ -75,7 +75,5 @@ public class RpcCmdDecoder extends SimpleChannelInboundHandler<NettyRpcCmd> {
         } else {
             ctx.fireChannelRead(cmd);
         }
-
-        System.out.println("================channelRead0 finish==================");
     }
 }

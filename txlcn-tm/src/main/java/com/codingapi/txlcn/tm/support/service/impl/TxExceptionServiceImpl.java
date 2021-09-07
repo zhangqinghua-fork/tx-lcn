@@ -155,7 +155,6 @@ public class TxExceptionServiceImpl implements TxExceptionService {
         if (Objects.isNull(exception)) {
             throw new TransactionStateException("non exists aspect log", TransactionStateException.NON_ASPECT);
         }
-        System.err.println("===============================TxExceptionServiceImpl.getTransactionInfo==========================================: " );
         List<String> remoteKeys = rpcClient.remoteKeys(exception.getModId());
         if (remoteKeys.isEmpty()) {
             throw new TransactionStateException("non mod found", TransactionStateException.NON_MOD);
@@ -182,7 +181,6 @@ public class TxExceptionServiceImpl implements TxExceptionService {
     
     @Override
     public void deleteTransactionInfo(String groupId, String unitId, String modId) throws TxManagerException {
-        System.err.println("===============================TxExceptionServiceImpl.deleteTransactionInfo==========================================: " );
         List<String> remoteKeys = rpcClient.remoteKeys(modId);
         if (remoteKeys.isEmpty()) {
             throw new TxManagerException("不存在的模块");

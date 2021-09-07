@@ -16,7 +16,6 @@
 package com.codingapi.txlcn.tm.core;
 
 import com.codingapi.txlcn.common.exception.TransactionException;
-import com.codingapi.txlcn.common.util.Transactions;
 import com.codingapi.txlcn.logger.TxLogger;
 import com.codingapi.txlcn.tm.core.storage.TransactionUnit;
 import com.codingapi.txlcn.tm.support.service.TxExceptionService;
@@ -86,13 +85,13 @@ public class SimpleTransactionManager implements TransactionManager {
     }
 
     @Override
-    public void commit(DTXContext dtxContext) throws TransactionException {
-        notifyTransaction(dtxContext, 1);
+    public void commit(DTXContext dtxContext, String unitId) throws TransactionException {
+        notifyTransaction(dtxContext, unitId, 1);
     }
 
     @Override
-    public void rollback(DTXContext dtxContext) throws TransactionException {
-        notifyTransaction(dtxContext, 0);
+    public void rollback(DTXContext dtxContext, String unitId) throws TransactionException {
+        notifyTransaction(dtxContext, unitId, 0);
     }
 
     @Override
@@ -102,7 +101,6 @@ public class SimpleTransactionManager implements TransactionManager {
 
     @Override
     public int transactionState(String groupId) {
-        System.err.println("===============================NettyRpcClient.transactionState==========================================: " );
         int state = exceptionService.transactionState(groupId);
         //存在数据时返回数据状态
         if (state != -1) {
@@ -122,26 +120,38 @@ public class SimpleTransactionManager implements TransactionManager {
      * @param transactionState          事务状态 0-失败 1-成功
      * @throws TransactionException     通知异常
      */
-    private void notifyTransaction(DTXContext dtxContext, int transactionState) throws TransactionException {
+    private void notifyTransaction(DTXContext dtxContext, String unitId, int transactionState) throws TransactionException {
+        // 1. 获取参与的事务单元
         List<TransactionUnit> transactionUnits = dtxContext.transactionUnits();
         log.debug("group[{}]'s transaction units: {}", dtxContext.getGroupId(), transactionUnits);
-        for (TransactionUnit transUnit : transactionUnits) {
+
+        // 2. 获取发起通知的事务单元（只需要通知此事务单元后面的事务单元即可。前面的不同处理）
+        TransactionUnit notifyUnit = transactionUnits.stream().filter(t -> t.getUnitId().equals(unitId)).findAny().orElse(null);
+        int index = notifyUnit == null ? 0 : transactionUnits.indexOf(notifyUnit) + 1;
+
+        log.debug("group[{}]'s transaction need to notify units: {}", dtxContext.getGroupId(), transactionUnits.subList(index, transactionUnits.size()));
+        // 3. 通知每个事务单元事务状态
+        for (int i = index; i < transactionUnits.size(); i++) {
+            TransactionUnit transUnit = transactionUnits.get(i);
+
+            // 3.1 组装通知参数
             NotifyUnitParams notifyUnitParams = new NotifyUnitParams();
             notifyUnitParams.setGroupId(dtxContext.getGroupId());
             notifyUnitParams.setUnitId(transUnit.getUnitId());
             notifyUnitParams.setUnitType(transUnit.getUnitType());
             notifyUnitParams.setState(transactionState);
-            txLogger.txTrace(dtxContext.getGroupId(), notifyUnitParams.getUnitId(), "notify {}'s unit: {}",
-                    transUnit.getModId(), transUnit.getUnitId());
+
+            // 3.2 记录日志
+            txLogger.txTrace(dtxContext.getGroupId(), notifyUnitParams.getUnitId(), "notify {}'s unit: {}", transUnit.getModId(), transUnit.getUnitId());
+
+            // 3.3 发送通知
             try {
-                System.err.println("===============================NettyRpcClient.notifyTransaction==========================================: " );
                 List<String> modChannelKeys = rpcClient.remoteKeys(transUnit.getModId());
                 if (modChannelKeys.isEmpty()) {
                     // record exception
                     throw new RpcException("offline mod.");
                 }
-                MessageDto respMsg =
-                        rpcClient.request(modChannelKeys.get(0), MessageCreator.notifyUnit(notifyUnitParams));
+                MessageDto respMsg = rpcClient.request(modChannelKeys.get(0), MessageCreator.notifyUnit(notifyUnitParams));
                 if (!MessageUtils.statusOk(respMsg)) {
                     // 提交/回滚失败的消息处理
                     List<Object> params = Arrays.asList(notifyUnitParams, transUnit.getModId());

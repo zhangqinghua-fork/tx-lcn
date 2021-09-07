@@ -51,7 +51,7 @@ public interface TransactionManager {
      * @param dtxContext transaction
      * @throws TransactionException TransactionException
      */
-    void commit(DTXContext dtxContext) throws TransactionException;
+    void commit(DTXContext dtxContext, String unitId) throws TransactionException;
 
     /**
      * 回滚分布式事务。出错会记录异常记录
@@ -59,7 +59,7 @@ public interface TransactionManager {
      * @param dtxContext transaction
      * @throws TransactionException TransactionException
      */
-    void rollback(DTXContext dtxContext) throws TransactionException;
+    void rollback(DTXContext dtxContext, String unitId) throws TransactionException;
 
     /**
      * 关闭分布式事务。出错会记录异常记录

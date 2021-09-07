@@ -57,21 +57,24 @@ public class NotifyGroupExecuteService implements RpcExecuteService {
             // 解析参数
             NotifyGroupParams notifyGroupParams = transactionCmd.getMsg().loadBean(NotifyGroupParams.class);
             int commitState = notifyGroupParams.getState();
+
             // 获取事务状态（当手动回滚时会先设置状态）
             int transactionState = transactionManager.transactionStateFromFastStorage(transactionCmd.getGroupId());
             if (transactionState == 0) {
                 commitState = 0;
             }
 
-            // 系统日志
-            txLogger.txTrace(
-                    transactionCmd.getGroupId(), "", "notify group state: {}", notifyGroupParams.getState());
+            // 记录系统日志
+            txLogger.txTrace(transactionCmd.getGroupId(), "", "notify group state: {}", notifyGroupParams.getState());
 
+            // 通知提交还是回滚
             if (commitState == 1) {
-                transactionManager.commit(dtxContext);
+                transactionManager.commit(dtxContext, notifyGroupParams.getUnitId());
             } else if (commitState == 0) {
-                transactionManager.rollback(dtxContext);
+                transactionManager.rollback(dtxContext, notifyGroupParams.getUnitId());
             }
+
+            // 记录手工日志
             if (transactionState == 0) {
                 txLogger.txTrace(transactionCmd.getGroupId(), "", "mandatory rollback for user.");
             }
@@ -79,6 +82,7 @@ public class NotifyGroupExecuteService implements RpcExecuteService {
         } catch (TransactionException e) {
             throw new TxManagerException(e);
         } finally {
+            // 请求事务分组信息
             transactionManager.close(transactionCmd.getGroupId());
             // 系统日志
             txLogger.txTrace(transactionCmd.getGroupId(), "", "notify group successfully.");

@@ -25,6 +25,7 @@ import com.codingapi.txlcn.tm.txmsg.RpcExecuteService;
 import com.codingapi.txlcn.tm.txmsg.TransactionCmd;
 import com.codingapi.txlcn.txmsg.RpcClient;
 import com.codingapi.txlcn.txmsg.params.JoinGroupParams;
+import com.codingapi.txlcn.txmsg.params.NotifyGroupParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -60,19 +61,24 @@ public class JoinGroupExecuteService implements RpcExecuteService {
     @Override
     public Serializable execute(TransactionCmd transactionCmd) throws TxManagerException {
         try {
+            // 1. 获取事务分组上下文
             DTXContext dtxContext = dtxContextRegistry.get(transactionCmd.getGroupId());
+            transactionCmd.getMsg().loadBean(NotifyGroupParams.class);
+            // 2. 解析加入分组参数
             JoinGroupParams joinGroupParams = transactionCmd.getMsg().loadBean(JoinGroupParams.class);
             txLogger.txTrace(transactionCmd.getGroupId(), joinGroupParams.getUnitId(), "unit:{} try join group:{}",
-                    joinGroupParams.getUnitId(), transactionCmd.getGroupId());
-            // transactionManager.join(dtxContext, joinGroupParams.getUnitId(), joinGroupParams.getUnitType(),
-            //         rpcClient.getAppName(transactionCmd.getRemoteKey()), joinGroupParams.getTransactionState());
+                             joinGroupParams.getUnitId(), transactionCmd.getGroupId());
 
-            System.err.println("===============================JoinGroupExecuteService.execute==========================================");
-            transactionManager.join(dtxContext, joinGroupParams.getUnitId(), joinGroupParams.getUnitType(),
-                                    rpcClient.getModId(transactionCmd.getRemoteKey()), joinGroupParams.getTransactionState());
+            // 3. 加入分组
+            transactionManager.join(dtxContext,
+                                    joinGroupParams.getUnitId(),
+                                    joinGroupParams.getUnitType(),
+                                    rpcClient.getModId(transactionCmd.getRemoteKey()),
+                                    joinGroupParams.getTransactionState());
 
+            // 4. 记录日志
             txLogger.txTrace(transactionCmd.getGroupId(), joinGroupParams.getUnitId(), "unit:{} joined.",
-                    joinGroupParams.getUnitId());
+                             joinGroupParams.getUnitId());
         } catch (TransactionException e) {
             txLogger.error(this.getClass().getSimpleName(), e.getMessage());
             throw new TxManagerException(e.getLocalizedMessage());

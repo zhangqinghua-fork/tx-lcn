@@ -71,7 +71,8 @@ public class RedisStorage implements FastStorage {
 
     @Override
     public void initGroup(String groupId) {
-        redisTemplate.opsForHash().put(REDIS_GROUP_PREFIX + groupId, "root", "");
+        // redisTemplate.opsForHash().put(REDIS_GROUP_PREFIX + groupId, "root", "");
+        redisTemplate.opsForList().rightPush(REDIS_GROUP_PREFIX + groupId, "");
         redisTemplate.expire(REDIS_GROUP_PREFIX + groupId, managerConfig.getDtxTime() + 10000, TimeUnit.MILLISECONDS);
     }
 
@@ -82,16 +83,18 @@ public class RedisStorage implements FastStorage {
 
     @Override
     public List<TransactionUnit> findTransactionUnitsFromGroup(String groupId) throws FastStorageException {
-        Map<Object, Object> units = redisTemplate.opsForHash().entries(REDIS_GROUP_PREFIX + groupId);
-        return units.entrySet().stream()
-                    .filter(objectObjectEntry -> !objectObjectEntry.getKey().equals("root"))
-                    .map(objectObjectEntry -> (TransactionUnit) objectObjectEntry.getValue()).collect(Collectors.toList());
+        // Map<Object, Object> units = redisTemplate.opsForHash().entries(REDIS_GROUP_PREFIX + groupId);
+        // return units.entrySet().stream()
+        //             .filter(objectObjectEntry -> !objectObjectEntry.getKey().equals("root"))
+        //             .map(objectObjectEntry -> (TransactionUnit) objectObjectEntry.getValue()).collect(Collectors.toList());
+        return Objects.requireNonNull(redisTemplate.opsForList().range(REDIS_GROUP_PREFIX + groupId, 1, -1)).stream().map(a-> (TransactionUnit)a).collect(Collectors.toList());
     }
 
     @Override
     public void saveTransactionUnitToGroup(String groupId, TransactionUnit transactionUnit) throws FastStorageException {
         if (Optional.ofNullable(redisTemplate.hasKey(REDIS_GROUP_PREFIX + groupId)).orElse(false)) {
-            redisTemplate.opsForHash().put(REDIS_GROUP_PREFIX + groupId, transactionUnit.getUnitId(), transactionUnit);
+            // redisTemplate.opsForHash().put(REDIS_GROUP_PREFIX + groupId, transactionUnit.getUnitId(), transactionUnit);
+            redisTemplate.opsForList().rightPush(REDIS_GROUP_PREFIX + groupId, transactionUnit);
             return;
         }
         throw new FastStorageException("attempts to the non-existent transaction group " + groupId,

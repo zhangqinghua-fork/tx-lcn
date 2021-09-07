@@ -119,7 +119,6 @@ public class SocketManager {
     }
 
     public MessageDto request(String key, RpcCmd cmd, long timeout) throws RpcException {
-        System.out.println("=======================SocketManager.request===================================" + System.currentTimeMillis());
         NettyRpcCmd nettyRpcCmd = (NettyRpcCmd) cmd;
         log.debug("get channel, key:{}", key);
         Channel channel = getChannel(key);
@@ -239,8 +238,6 @@ public class SocketManager {
     public String getModuleName(String remoteKey) {
         AppInfo appInfo = appNames.get(remoteKey);
         String moduleName = appInfo == null ? null : appInfo.getAppName();
-        System.err.println("===============================SocketManager.getModuleName==========================================: " + moduleName);
-
         return moduleName;
     }
 
@@ -259,7 +256,6 @@ public class SocketManager {
     public String getModuleId(String remoteKey) {
         AppInfo appInfo = appNames.get(remoteKey);
         String moduleId = appInfo == null ? null : appInfo.getLabelName();
-        System.err.println("===============================SocketManager.getModuleId==========================================: " + moduleId);
         return moduleId;
     }
 

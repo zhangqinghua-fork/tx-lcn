@@ -31,6 +31,18 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Data
 public class NotifyGroupParams implements Serializable {
+    /**
+     * 事务单元Id
+     */
+    private String unitId;
+
+    /**
+     * 事务分组Id
+     */
     private String groupId;
+
+    /**
+     * 支付状态 0-回滚 1-提交
+     */
     private int state;
 }
