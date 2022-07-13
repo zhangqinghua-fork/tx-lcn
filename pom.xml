@@ -65,6 +65,8 @@
         <txlcn-com.netflix.feign.core.verison>8.18.0</txlcn-com.netflix.feign.core.verison>
         <txlcn-com.netflix.ribbon.loadbalancer.version>2.3.0</txlcn-com.netflix.ribbon.loadbalancer.version>
         <txlcn-org.springframework.cloud.commons.version>2.1.0.RELEASE</txlcn-org.springframework.cloud.commons.version>
+        <txlcn-tracing.version>6.1.1.RELEASE</txlcn-tracing.version>
+
         <!-- 跳过测试 -->
         <skipTests>true</skipTests>
     </properties>
@@ -166,7 +168,7 @@
             <dependency>
                 <groupId>com.codingapi.txlcn</groupId>
                 <artifactId>txlcn-tracing</artifactId>
-                <version>${codingapi.txlcn.version}</version>
+                <version>${txlcn-tracing.version}</version>
             </dependency>
 
             <dependency>
@@ -269,35 +271,91 @@
         </dependencies>
     </dependencyManagement>
 
-    <!--发布到私有仓库中-->
-    <distributionManagement>
-        <repository>
-            <id>rdc-releases</id>
-            <url>https://repo.rdc.aliyun.com/repository/136962-release-066qRy/</url>
-        </repository>
-        <snapshotRepository>
-            <id>rdc-snapshots</id>
-            <url>https://repo.rdc.aliyun.com/repository/136962-snapshot-nAJQiw/</url>
-        </snapshotRepository>
-    </distributionManagement>
 
     <build>
         <plugins>
-            <!-- 要将源码放上去，需要加入这个插件 -->
+            <!--解决IDEA自动重置LanguageLevel和JavaCompiler版本的问题-->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+
+            <!--发布源码-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+                <version>3.0.1</version>
                 <configuration>
                     <attach>true</attach>
                 </configuration>
                 <executions>
                     <execution>
-                        <phase>compile</phase>
                         <goals>
                             <goal>jar</goal>
+                        </goals>
+                        <phase>compile</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--发布到Github上-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.8.2</version>
+                <configuration>
+                    <altDeploymentRepository>maven.repo::default::file://${project.build.directory}/mvn-repo
+                    </altDeploymentRepository>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>com.github.github</groupId>
+                <artifactId>site-maven-plugin</artifactId>
+                <version>0.12</version>
+                <configuration>
+                    <!-- git commit message -->
+                    <message>Maven artifacts for ${project.version}</message>
+                    <!-- disable webpage processing -->
+                    <noJekyll>true</noJekyll>
+                    <!-- matches distribution management repository url above -->
+                    <outputDirectory>${project.build.directory}/mvn-repo</outputDirectory>
+                    <!-- remote branch name -->
+                    <branch>refs/heads/master</branch>
+                    <includes>
+                        <include>**/*</include>
+                    </includes>
+                    <merge>true</merge>
+                    <!--Maven setttings 文件中定义的 server.id-->
+                    <server>github</server>
+                    <!-- 对应github上创建的仓库名 -->
+                    <repositoryName>maven-repo</repositoryName>
+                    <!-- github仓库所有者setting中的name或者组织名 -->
+                    <repositoryOwner>zhangqinghua-maven-repo</repositoryOwner>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>site</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
+
+    <!--它的作用是将依赖安装在本地，以便后面我们用来上传到 GitHub。-->
+    <distributionManagement>
+        <repository>
+            <id>maven.repo</id>
+            <name>Local Staging Repository</name>
+            <url>file://${project.build.directory}/mvn-repo</url>
+        </repository>
+    </distributionManagement>
 </project>

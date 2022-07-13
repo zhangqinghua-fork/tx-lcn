@@ -9,6 +9,7 @@
     </parent>
 
     <artifactId>txlcn-tc</artifactId>
+    <version>6.1.1.RELEASE</version>
 
     <description>LCN project for Spring Boot</description>
 
