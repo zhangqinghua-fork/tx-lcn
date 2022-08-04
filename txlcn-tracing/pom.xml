@@ -11,7 +11,7 @@
 
     <artifactId>txlcn-tracing</artifactId>
     <name>txlcn-tracing</name>
-    <version>6.1.1.RELEASE</version>
+    <version>6.1.2.RELEASE</version>
 
 
     <dependencies>

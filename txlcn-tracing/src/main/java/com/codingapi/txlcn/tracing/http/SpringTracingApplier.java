@@ -40,7 +40,6 @@ public class SpringTracingApplier implements com.codingapi.txlcn.tracing.http.sp
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        System.out.println("=================SpringTracingApplier.addInterceptors========================");
         registry.addInterceptor(this);
     }
 
@@ -49,7 +48,6 @@ public class SpringTracingApplier implements com.codingapi.txlcn.tracing.http.sp
      */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        System.err.println("=========================SpringTracingApplier======================================");
         Tracings.apply(request::getHeader);
         return true;
     }
